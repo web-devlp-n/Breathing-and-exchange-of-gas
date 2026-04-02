@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NEET Mock Test</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI';
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+#timer{
+    text-align:right;
+    color:#00e6e6;
+    margin-bottom:15px;
+}
+
+.question{
+    background:rgba(255,255,255,0.08);
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:12px;
+    backdrop-filter:blur(10px);
+    transition:0.3s;
+}
+
+.question:hover{
+    transform:scale(1.02);
+}
+
+label{
+    display:block;
+    margin:6px 0;
+    cursor:pointer;
+}
+
+label:hover{
+    background:rgba(255,255,255,0.1);
+    padding-left:5px;
+}
+
+button{
+    display:block;
+    margin:20px auto;
+    padding:12px 30px;
+    border:none;
+    border-radius:10px;
+    background:#00e6e6;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#result{
+    text-align:center;
+    font-size:24px;
+    margin-top:20px;
+}
+
+.correct{color:#00ff88;}
+.wrong{color:#ff4d4d;}
+
+hr{border:0.5px solid rgba(255,255,255,0.2);}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>NEET Mock Test</h1>
+<div id="timer">Time Left: 60:00</div>
+
+<form id="quizForm">
+<div id="questions"></div>
+<button type="button" onclick="submitTest()">Submit</button>
+</form>
+
+<div id="result"></div>
+
+<button id="reviewBtn" style="display:none;" onclick="showAnswers()">View Answers</button>
+
+<div id="answers"></div>
+
+</div>
+
+<script>
+
+// TIMER
+let time=3600;
+let timer=setInterval(()=>{
+    let m=Math.floor(time/60);
+    let s=time%60;
+    document.getElementById("timer").innerText=
+    `Time Left: ${m}:${s<10?"0"+s:s}`;
+    time--;
+    if(time<0){
+        clearInterval(timer);
+        submitTest();
+    }
+},1000);
+
+
+// QUESTIONS
+const questions=[{q:"Which volume cannot be measured by spirometer?",options:["TV","ERV","IRV","RV"],ans:3},
+{q:"Vital capacity decreases in:",options:["Athletes","Smokers","Healthy individuals","High altitude"],ans:1},
+{q:"Incorrect relation:",options:["VC = TV + IRV + ERV","TLC = VC + RV","IC = TV + ERV","FRC = ERV + RV"],ans:2},
+{q:"Maximum inspiration possible includes:",options:["TV + ERV","TV + IRV","IRV + ERV","TV + RV"],ans:1},
+{q:"Residual volume function:",options:["Gas exchange","Prevent lung collapse","Increase pressure","Remove CO2"],ans:1},
+{q:"Dead space air:",options:["Participates in exchange","Remains in alveoli","Stays in conducting part","Rich in O2"],ans:2},
+{q:"FRC increases in:",options:["Fibrosis","Emphysema","Asthma","Pneumonia"],ans:1},
+{q:"Incorrect statement:",options:["RV part of TLC","RV included in VC","RV cannot be exhaled","RV prevents collapse"],ans:1},
+{q:"Restrictive diseases decrease:",options:["VC","RV","FRC","All"],ans:3},
+{q:"Inspiratory capacity:",options:["TV + IRV","TV + ERV","ERV + RV","IRV + RV"],ans:0},
+{q:"O2 diffuses due to:",options:["Active transport","Pressure gradient","Osmosis","Low solubility"],ans:1},
+{q:"CO2 diffuses faster because:",options:["Lower weight","Higher solubility","High pressure","Hb affinity"],ans:1},
+{q:"O2 in tissues:",options:["100","95","40","150"],ans:2},
+{q:"Incorrect pair:",options:["Alveoli O2 100","Blood O2 95","Tissue O2 60","Alveoli CO2 40"],ans:2},
+{q:"Diffusion depends on:",options:["Thickness","Surface area","Gradient","All"],ans:3},
+{q:"Decreases diffusion:",options:["Thin membrane","Large area","Thick membrane","High gradient"],ans:2},
+{q:"Membrane thickness:",options:["1 mm","0.5 µm","5 mm","10 µm"],ans:1},
+{q:"Gas exchange in tissues:",options:["External","Internal","Ventilation","Breathing"],ans:1},
+{q:"CO2 direction:",options:["Blood to alveoli","Alveoli to blood","Tissue to alveoli","Lung to tissue"],ans:0},
+{q:"Surface area:",options:["10","50","70-80","200"],ans:2},
+{q:"CO2 mostly transported as:",options:["Carbamino","Dissolved","Bicarbonate","CO"],ans:2},
+{q:"Chloride shift:",options:["Cl enters RBC","Cl leaves RBC","Na enters","K leaves"],ans:0},
+{q:"Hb affinity decreases when:",options:["High pH","Low CO2","High temp","High O2"],ans:2},
+{q:"Bohr effect:",options:["Bind O2","Release O2","Destroy Hb","Bind CO2"],ans:1},
+{q:"Incorrect:",options:["CO binds strongly","CO reduces O2","CO less affinity","CO dangerous"],ans:2},
+{q:"CO2 bicarbonate %:",options:["10","20","70","90"],ans:2},
+{q:"Enzyme:",options:["Amylase","Carbonic anhydrase","Pepsin","Trypsin"],ans:1},
+{q:"In lungs bicarbonate becomes:",options:["CO2 + H2O","HCO3","H2CO3","O2"],ans:0},
+{q:"O2 dissolved:",options:["3%","10%","50%","70%"],ans:0},
+{q:"Carbamino Hb:",options:["O2","CO2","CO","N2"],ans:1},
+{q:"Respiratory center:",options:["Cerebrum","Medulla","Hypothalamus","Pons"],ans:1},
+{q:"Stimulus:",options:["O2","CO2","N2","pH only"],ans:1},
+{q:"Inspiration:",options:["Pressure up","Volume down","Pressure down","Diaphragm relax"],ans:2},
+{q:"Expiration:",options:["Active","Passive","Forced","Controlled"],ans:1},
+{q:"Diaphragm:",options:["Up","Down","No change","Shrink"],ans:1},
+{q:"External intercostals:",options:["Expiration","Inspiration","Digestion","Circulation"],ans:1},
+{q:"Pleural fluid:",options:["Exchange","Lubrication","Transport","Protection"],ans:1},
+{q:"Elastic recoil:",options:["Inspiration","Expiration","Exchange","Transport"],ans:1},
+{q:"Chemoreceptors:",options:["O2","CO2 & pH","Sugar","BP"],ans:1},
+{q:"Breathing increases when:",options:["CO2 down","CO2 up","O2 up","Hb up"],ans:1},
+{q:"Emphysema:",options:["Thick membrane","Alveoli destruction","More elasticity","Better diffusion"],ans:1},
+{q:"Asthma:",options:["Infection","Allergy","Injury","Virus"],ans:1},
+{q:"Pneumonia:",options:["Kidney","Alveoli","Heart","Brain"],ans:1},
+{q:"CO poisoning:",options:["More O2","Less O2 transport","More CO2","No effect"],ans:1},
+{q:"Cyanosis:",options:["High O2","Low O2","High CO2","Low CO2"],ans:1},
+{q:"No surfactant:",options:["Easy breathing","Collapse","More O2","Less CO2"],ans:1},
+{q:"High altitude:",options:["Hyperoxia","Hypoxia","Hypercapnia","Normal"],ans:1},
+{q:"Smoking:",options:["Better","Reduced area","More O2","No change"],ans:1},
+{q:"Incorrect:",options:["CO2 diffuses faster","O2 binds Hb","Hb in plasma","CO binds strongly"],ans:2},
+{q:"Internal respiration:",options:["Lungs","Tissues","Trachea","Bronchi"],ans:1}];
+
+// RENDER
+let html="";
+questions.forEach((q,i)=>{
+html+=`<div class="question">
+<p>${i+1}. ${q.q}</p>
+${q.options.map((opt,j)=>`
+<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>
+`).join("")}
+</div>`;
+});
+document.getElementById("questions").innerHTML=html;
+
+
+// SUBMIT
+function submitTest(){
+let score=0;
+
+questions.forEach((q,i)=>{
+let selected=document.querySelector(`input[name="q${i}"]:checked`);
+if(selected){
+if(parseInt(selected.value)===q.ans) score+=4;
+else score-=1;
+}
+});
+
+document.getElementById("result").innerText="Your Score: "+score;
+document.getElementById("reviewBtn").style.display="block";
+}
+
+
+// SHOW ANSWERS
+function showAnswers(){
+let html="";
+
+questions.forEach((q,i)=>{
+let selected=document.querySelector(`input[name="q${i}"]:checked`);
+
+let userAns=selected?q.options[selected.value]:"Not Attempted";
+let status="",cls="";
+
+if(!selected){status="Not Attempted";cls="wrong";}
+else if(parseInt(selected.value)===q.ans){status="Correct";cls="correct";}
+else{status="Wrong";cls="wrong";}
+
+html+=`
+<p><b>Q${i+1}:</b> ${q.q}<br>
+Your Answer: ${userAns}<br>
+Correct Answer: <span class="correct">${q.options[q.ans]}</span><br>
+<span class="${cls}">(${status})</span>
+</p><hr>`;
+});
+
+document.getElementById("answers").innerHTML=html;
+}
+
+</script>
+
+</body>
+</html>
+  
